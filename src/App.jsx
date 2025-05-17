@@ -12,7 +12,7 @@ const PROMPTS = {
     "Need help with rent or utility bills this month?",
     "Looking for food or shelter in Chambersburg?",
     "Where can I get help finding a job right now?",
-    "I cold use help to stop drinking — is there a meeting today?",
+    "Need some help to stop drinking — is there a meeting today?",
   ],
   ht: [
     "Ki kote mwen ka jwenn èd ak lwaye oswa bòdwo sèvis?",
@@ -35,41 +35,35 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async (msg) => {
-  const newMessages = [...messages, { role: "user", content: msg }];
-  setMessages(newMessages);
-  setLoading(true);
+    const newMessages = [...messages, { role: "user", content: msg }];
+    setMessages(newMessages);
+    setLoading(true);
 
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ messages: newMessages })
-    });
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ messages: newMessages })
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const reply = data.reply;
+      setMessages([...newMessages, { role: "assistant", content: reply }]);
+    } catch (error) {
+      console.error("Error during fetch:", error);
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: "Sorry, something went wrong." }
+      ]);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-    const reply = data.reply;
-    setMessages([...newMessages, { role: "assistant", content: reply }]);
-  } catch (error) {
-    console.error("Error during fetch:", error);
-    setMessages([
-      ...newMessages,
-      { role: "assistant", content: "Sorry, something went wrong." }
-    ]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-    const data = await response.json();
-    const reply = data.choices[0].message.content;
-    setMessages([...newMessages, { role: "assistant", content: reply }]);
-    setLoading(false);
   };
 
   return (
