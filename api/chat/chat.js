@@ -5,6 +5,14 @@ const openai = new OpenAI({
 });
 
 module.exports = async function (context, req) {
+  if (req.method !== "POST") {
+    context.res = {
+      status: 405,
+      body: "Method Not Allowed",
+    };
+    return;
+  }
+
   try {
     const userMessage = req.body?.message || "";
 
@@ -16,15 +24,18 @@ module.exports = async function (context, req) {
       ],
     });
 
+    const reply = completion.choices[0].message.content;
+
     context.res = {
       status: 200,
-      body: completion.choices[0].message,
+      headers: { "Content-Type": "application/json" },
+      body: { reply },
     };
-  } catch (err) {
-    context.log("Error:", err.message);
+  } catch (error) {
+    console.error("OpenAI API error:", error);
     context.res = {
       status: 500,
-      body: { error: err.message },
+      body: { error: "Something went wrong." },
     };
   }
 };
