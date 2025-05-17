@@ -66,18 +66,6 @@ function App() {
   }
 };
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: newMessages,
-      }),
-    });
-
     const data = await response.json();
     const reply = data.choices[0].message.content;
     setMessages([...newMessages, { role: "assistant", content: reply }]);
