@@ -6,13 +6,21 @@ const openai = new OpenAI({
 
 module.exports = async function (context, req) {
   try {
-    const userMessage = req.body?.message || "";
+    const messages = req.body?.messages;
+
+    if (!messages || !Array.isArray(messages)) {
+      context.res = {
+        status: 400,
+        body: { reply: "Invalid request. 'messages' array is required." },
+      };
+      return;
+    }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o", // Or "gpt-3.5-turbo"
       messages: [
         { role: "system", content: "You are a helpful community assistant for Chambersburg, PA." },
-        { role: "user", content: userMessage },
+        ...messages,
       ],
     });
 
